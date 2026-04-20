@@ -1,6 +1,5 @@
 # FlowForge HR - Visual Workflow Designer
 
-![FlowForge Dashboard](src/assets/dashboard-preview.png)
 
 A high-performance React application designed for constructing and simulating operational HR workflows. Built with React Flow, this platform emphasizes visual clarity, logical integrity, and extensible architecture.
 
@@ -125,6 +124,10 @@ The current implementation provides a complete end-to-end environment for workfl
 - **Premium UI**: 3-panel professional layout with a refined light theme, calibrated pastel palette, and smooth interaction states.
 
 ---
+
+![FlowForge Dashboard](src/assets/image.png)
+
+
 
 ## 🚀 What I Would Improve
 
