@@ -6,45 +6,29 @@ import type { WorkflowNode } from '../../types'
 export const TaskNode = memo(({ data, selected }: NodeProps<WorkflowNode['data']>) => {
   return (
     <div className={`
-      px-4 py-3 bg-gradient-to-r from-blue-500 to-blue-600 
-      text-white rounded-lg shadow-lg border-2 transition-all
-      ${selected ? 'border-yellow-400 ring-2 ring-yellow-400' : 'border-blue-700'}
-      min-w-[180px]
+      px-3 py-2 bg-white rounded-xl shadow-sm border transition-all min-w-[200px]
+      ${selected ? 'border-pink-400 ring-2 ring-pink-50' : 'border-gray-100'}
     `}>
       <Handle
         type="target"
         position={Position.Top}
-        className="w-3 h-3 bg-blue-300 border-2 border-blue-600"
+        className="w-1.5 h-1.5 bg-gray-300 border-none"
       />
       <Handle
         type="source"
         position={Position.Bottom}
-        className="w-3 h-3 bg-blue-300 border-2 border-blue-600"
+        className="w-1.5 h-1.5 bg-gray-300 border-none"
       />
       
-      <div className="flex items-start gap-2">
-        <div className="w-6 h-6 bg-blue-300 rounded flex items-center justify-center flex-shrink-0 mt-0.5">
-          <svg className="w-4 h-4 text-blue-800" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <div className="flex items-center gap-3">
+        <div className="w-8 h-8 rounded-lg bg-pink-100/80 flex items-center justify-center flex-shrink-0">
+          <svg className="w-5 h-5 text-pink-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
           </svg>
         </div>
-        <div className="flex-1">
-          <div className="font-semibold text-sm">{data.title || 'Task'}</div>
-          {data.description && (
-            <div className="text-xs text-blue-100 mt-1 line-clamp-2">
-              {data.description}
-            </div>
-          )}
-          {data.assignee && (
-            <div className="text-xs text-blue-100 mt-1">
-              Assigned to: {data.assignee}
-            </div>
-          )}
-          {data.dueDate && (
-            <div className="text-xs text-blue-100 mt-1">
-              Due: {new Date(data.dueDate).toLocaleDateString()}
-            </div>
-          )}
+        <div>
+          <div className="font-semibold text-gray-800 text-sm leading-tight">{data.title || 'Task'}</div>
+          <div className="text-[10px] text-gray-400 mt-0.5 line-clamp-1">{data.description || 'Manual Task'}</div>
         </div>
       </div>
     </div>

@@ -1,6 +1,15 @@
 import { useState, useEffect } from "react";
 import { ReactFlowProvider } from "reactflow";
 import "reactflow/dist/style.css";
+import { 
+  Zap, 
+  Settings2, 
+  Terminal, 
+  AlertCircle, 
+  ShieldCheck, 
+  Layers,
+  Info
+} from "lucide-react";
 
 import { NodeSidebar } from "./components/sidebar/NodeSidebar";
 import { WorkflowCanvas } from "./components/canvas/WorkflowCanvas";
@@ -19,82 +28,105 @@ function AppContent() {
   }, [nodes, edges, setValidationErrors]);
 
   return (
-    <div className="h-screen w-screen flex flex-col bg-white">
+    <div className="h-screen w-screen flex flex-col bg-[#fdfcff] text-gray-900 font-sans tracking-tight">
       
-      {/* HEADER */}
-      <header className="h-16 bg-white border-b border-gray-200 px-6 flex items-center justify-between flex-shrink-0 shadow-sm">
+      {/* GLOBAL HEADER */}
+      <header className="h-16 bg-white border-b border-gray-100 px-8 flex items-center justify-between flex-shrink-0 z-30 shadow-[0_1px_3px_rgba(0,0,0,0.02)]">
+        
+        {/* Brand Identity */}
         <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center">
-              <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-              </svg>
-            </div>
-            <h1 className="text-xl font-bold text-gray-800">FlowForge HR</h1>
+          <div className="w-10 h-10 rounded-2xl bg-blue-500 flex items-center justify-center shadow-lg shadow-blue-100 transform -rotate-3">
+            <Zap className="w-5 h-5 text-white fill-current" />
           </div>
-          <span className="text-sm text-gray-500 hidden sm:inline">
-            Visual Workflow Designer
-          </span>
+          <div>
+            <h1 className="text-sm font-bold text-gray-900 uppercase tracking-tighter">FlowForge HR</h1>
+            <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-0.5 leading-none opacity-60">Engine v4.2.0</p>
+          </div>
         </div>
 
-        <div className="flex gap-2">
+        {/* Global Controls */}
+        <div className="flex items-center p-1 bg-gray-50 rounded-2xl border border-gray-100">
           <button
             onClick={() => setActivePanel("config")}
-            className={`px-4 py-2 rounded-lg text-sm font-medium transition-all flex items-center gap-2 ${
-              activePanel === "config"
-                ? "bg-blue-500 text-white border border-blue-500 shadow-sm"
-                : "bg-white text-gray-700 hover:bg-gray-50 border border-gray-300"
-            }`}
+            className={`flex items-center gap-2 px-6 py-2 text-xs font-bold rounded-xl transition-all duration-300 ${activePanel === "config"
+              ? "bg-white text-blue-600 shadow-sm border border-blue-50"
+              : "text-gray-400 hover:text-gray-600"
+              }`}
           >
-            Configuration
+            <Settings2 className="w-3.5 h-3.5" />
+            Workspace
           </button>
           <button
             onClick={() => setActivePanel("simulation")}
-            className={`px-4 py-2 rounded-lg text-sm font-medium transition-all flex items-center gap-2 ${
-              activePanel === "simulation"
-                ? "bg-blue-500 text-white border border-blue-500 shadow-sm"
-                : "bg-white text-gray-700 hover:bg-gray-50 border border-gray-300"
-            }`}
+            className={`flex items-center gap-2 px-6 py-2 text-xs font-bold rounded-xl transition-all duration-300 ${activePanel === "simulation"
+              ? "bg-white text-blue-600 shadow-sm border border-blue-50"
+              : "text-gray-400 hover:text-gray-600"
+              }`}
           >
+            <Terminal className="w-3.5 h-3.5" />
             Simulation
           </button>
         </div>
+
+        {/* User / Org Context */}
+        <div className="flex items-center gap-3">
+           <div className="hidden md:flex flex-col items-end text-right">
+              <span className="text-[11px] font-bold text-gray-800">Operational Alpha</span>
+              <span className="text-[9px] font-bold text-green-500 uppercase tracking-wider">Sync Active</span>
+           </div>
+           <div className="w-10 h-10 rounded-full border-2 border-gray-100 bg-gray-50 flex items-center justify-center">
+              <ShieldCheck className="w-5 h-5 text-gray-300" />
+           </div>
+        </div>
+
       </header>
 
-      {/* MAIN */}
+      {/* CORE INFRASTRUCTURE */}
       <div className="flex flex-1 overflow-hidden">
 
-        {/* LEFT SIDEBAR */}
-        <div className="w-64 bg-gray-50 border-r border-gray-200 flex-shrink-0">
+        {/* COMPONENT REPOSITORY */}
+        <aside className="w-72 overflow-hidden flex-shrink-0">
           <NodeSidebar />
-        </div>
+        </aside>
 
-        {/* CANVAS */}
-        <div className="flex-1 h-full flex bg-white">
+        {/* LOGIC CANVAS */}
+        <main className="flex-1 overflow-hidden bg-[#fdfcff] relative">
           <WorkflowCanvas />
-        </div>
+          
+          {/* Overlay Status (Contextual) */}
+          <div className="absolute top-6 left-6 p-3 bg-white/80 backdrop-blur-md rounded-2xl border border-gray-100 shadow-xl flex items-center gap-3 animate-in fade-in slide-in-from-left-4 duration-500 pointer-events-none">
+             <div className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
+             <span className="text-[10px] font-bold text-gray-500 uppercase tracking-widest leading-none">Drafting Environment</span>
+          </div>
+        </main>
 
-        {/* RIGHT PANEL */}
-        <div className="w-80 bg-white border-l border-gray-200 flex-shrink-0 overflow-auto">
-          {activePanel === "config" ? <ConfigurationPanel /> : <SimulationPanel />}
-        </div>
+        {/* PARAMETER INTERFACE */}
+        <aside className="w-80 overflow-hidden flex-shrink-0 shadow-[-4px_0_24px_rgba(0,0,0,0.02)]">
+          <div className="h-full transition-transform duration-500">
+            {activePanel === "config" ? <ConfigurationPanel /> : <SimulationPanel />}
+          </div>
+        </aside>
 
       </div>
 
-      {/* VALIDATION BAR */}
+      {/* INTELLIGENT FEEDBACK BAR */}
       {validationErrors.length > 0 && (
-        <div className="bg-red-50 border-t border-red-200 px-6 py-3 text-sm">
-          <div className="flex items-center gap-2">
-            <div className="w-2 h-2 bg-red-400 rounded-full"></div>
-            <span className="font-medium text-red-800">Validation Errors:</span>
+        <div className="bg-rose-50 border-t border-rose-100 px-8 py-3.5 flex items-center justify-between flex-shrink-0 animate-in slide-in-from-bottom-full duration-500">
+          <div className="flex items-center gap-4">
+            <div className="w-8 h-8 rounded-full bg-rose-500 flex items-center justify-center shadow-lg shadow-rose-200">
+               <AlertCircle className="w-4 h-4 text-white" />
+            </div>
+            <div>
+               <p className="text-[11px] font-bold text-rose-700 uppercase tracking-widest leading-none mb-1">Architecture Integrity Fault</p>
+               <p className="text-xs text-rose-500 font-medium">{validationErrors.length} logical inconsistencies detected in the current blueprint.</p>
+            </div>
           </div>
-          <ul className="list-disc pl-6 mt-2 space-y-1 text-red-700">
-            {validationErrors.map((e, i) => (
-              <li key={i}>{e.message}</li>
-            ))}
-          </ul>
+          <button className="px-4 py-2 bg-rose-500 text-white rounded-xl text-[10px] font-bold uppercase tracking-widest hover:bg-rose-600 transition-all shadow-md active:scale-95">
+             Review Errors
+          </button>
         </div>
       )}
+
     </div>
   );
 }

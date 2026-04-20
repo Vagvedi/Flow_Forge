@@ -1,4 +1,5 @@
 import type { WorkflowNode } from '../../types'
+import { Flag, MessageSquare, CheckCircle } from 'lucide-react'
 
 interface EndNodeFormProps {
   node: WorkflowNode
@@ -7,10 +8,12 @@ interface EndNodeFormProps {
 
 export function EndNodeForm({ node, onUpdate }: EndNodeFormProps) {
   return (
-    <div className="space-y-4">
-      <div>
-        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-          Title
+    <div className="space-y-6 animate-in fade-in duration-500">
+      {/* Title Section */}
+      <div className="space-y-2">
+        <label className="flex items-center gap-2 text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+          <Flag className="w-3 h-3" />
+          End State Label
         </label>
         <input
           type="text"
@@ -18,16 +21,18 @@ export function EndNodeForm({ node, onUpdate }: EndNodeFormProps) {
           onChange={(e) => onUpdate({
             data: { ...node.data, title: e.target.value }
           })}
-          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
-                   bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100
-                   focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          placeholder="Enter end node title"
+          className="w-full px-4 py-3 bg-white border border-gray-100 rounded-xl
+                   text-gray-800 text-sm placeholder:text-gray-300
+                   hover:border-gray-200 focus:ring-4 focus:ring-blue-50/50 focus:border-blue-400 focus:outline-none transition-all shadow-sm"
+          placeholder="Workflow Finalized"
         />
       </div>
 
-      <div>
-        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-          Message
+      {/* Message Section */}
+      <div className="space-y-2">
+        <label className="flex items-center gap-2 text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+          <MessageSquare className="w-3 h-3" />
+          Completion Message
         </label>
         <textarea
           value={node.data.message || ''}
@@ -35,25 +40,15 @@ export function EndNodeForm({ node, onUpdate }: EndNodeFormProps) {
             data: { ...node.data, message: e.target.value }
           })}
           rows={3}
-          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
-                   bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100
-                   focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          placeholder="Enter completion message"
-        />
-      </div>
-
-      <div className="flex items-center">
-        <input
-          type="checkbox"
           id="showSummary"
           checked={node.data.showSummary || false}
           onChange={(e) => onUpdate({
             data: { ...node.data, showSummary: e.target.checked }
           })}
-          className="w-4 h-4 text-blue-600 border-gray-300 rounded 
-                   focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2"
+          className="w-4 h-4 text-blue-400 border-gray-200 rounded 
+                   focus:ring-blue-400 focus:ring-offset-0 focus:ring-2"
         />
-        <label htmlFor="showSummary" className="ml-2 text-sm text-gray-700 dark:text-gray-300">
+        <label htmlFor="showSummary" className="text-sm text-gray-600 font-medium cursor-pointer">
           Show workflow summary
         </label>
       </div>

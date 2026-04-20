@@ -2,14 +2,14 @@ import { useCallback, useRef } from "react";
 import ReactFlow, {
   useNodesState,
   useEdgesState,
-  Controls,
   MiniMap,
   Background,
   addEdge,
   type Connection,
   type Edge,
   BackgroundVariant,
-  MarkerType
+  MarkerType,
+  useReactFlow,
 } from "reactflow";
 import "reactflow/dist/style.css";
 
@@ -19,6 +19,7 @@ import type { WorkflowNode } from "../../types";
 
 export function WorkflowCanvas() {
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
+  const { zoomIn, zoomOut, fitView } = useReactFlow();
 
   const {
     nodes: storeNodes,
@@ -32,57 +33,48 @@ export function WorkflowCanvas() {
   const [nodes, setNodes, onNodesChange] = useNodesState(storeNodes || []);
   const [edges, setEdges, onEdgesChange] = useEdgesState(storeEdges || []);
 
-  // 🔗 CONNECT NODES (COLORED ARROWS)
   const getEdgeColor = (sourceType: string) => {
     switch (sourceType) {
-      case 'start':
-        return '#3b82f6'; // blue
-      case 'task':
-        return '#ec4899'; // pink
-      case 'approval':
-        return '#f97316'; // peach
-      case 'automated':
-        return '#8b5cf6'; // lavender
-      case 'end':
-        return '#10b981'; // mint
-      default:
-        return '#6b7280'; // gray
+      case 'start': return '#93c5fd';
+      case 'task': return '#f9a8d4';
+      case 'approval': return '#fdba74';
+      case 'automated': return '#c4b5fd';
+      case 'end': return '#86efac';
+      default: return '#e5e7eb';
     }
   };
 
   const onConnect = useCallback(
-  (params: Connection) => {
-    if (!params.source || !params.target) return;
-    
-    // Find source node to get its type
-    const sourceNode = nodes.find(node => node.id === params.source);
-    const edgeColor = sourceNode ? getEdgeColor(sourceNode.type || '') : '#6b7280';
-    
-    const newEdge: Edge = {
-      id: `edge-${params.source}-${params.target}`,
-      source: params.source,
-      target: params.target,
-      sourceHandle: params.sourceHandle,
-      targetHandle: params.targetHandle,
-      type: "smoothstep",
-      animated: false,
-      style: {
-        stroke: edgeColor,
-        strokeWidth: 2,
-      },
-      markerEnd: {
-        type: MarkerType.ArrowClosed,
-        color: edgeColor,
-      },
-    };
+    (params: Connection) => {
+      if (!params.source || !params.target) return;
 
-    setEdges((eds) => addEdge(newEdge, eds));
-    addStoreEdge(newEdge);
-  },
-  [setEdges, addStoreEdge, nodes]
-);
+      const sourceNode = nodes.find(node => node.id === params.source);
+      const edgeColor = sourceNode ? getEdgeColor(sourceNode.type || '') : '#e5e7eb';
 
-  // 🖱 SELECT NODE
+      const newEdge: Edge = {
+        id: `edge-${params.source}-${params.target}`,
+        source: params.source,
+        target: params.target,
+        sourceHandle: params.sourceHandle,
+        targetHandle: params.targetHandle,
+        type: "smoothstep",
+        animated: false,
+        style: {
+          stroke: edgeColor,
+          strokeWidth: 2,
+        },
+        markerEnd: {
+          type: MarkerType.ArrowClosed,
+          color: edgeColor,
+        },
+      };
+
+      setEdges((eds) => addEdge(newEdge, eds));
+      addStoreEdge(newEdge);
+    },
+    [setEdges, addStoreEdge, nodes]
+  );
+
   const onNodeClick = useCallback(
     (_: any, node: any) => {
       setSelectedNode(node);
@@ -90,7 +82,6 @@ export function WorkflowCanvas() {
     [setSelectedNode]
   );
 
-  // ❌ DELETE NODE
   const onNodeDoubleClick = useCallback(
     (_: any, node: any) => {
       deleteNode(node.id);
@@ -98,13 +89,11 @@ export function WorkflowCanvas() {
     [deleteNode]
   );
 
-  // 🧠 DRAG OVER
   const onDragOver = useCallback((event: React.DragEvent) => {
     event.preventDefault();
     event.dataTransfer.dropEffect = "move";
   }, []);
 
-  // 📦 DROP NODE (FIXED POSITION + SAFETY)
   const onDrop = useCallback(
     (event: React.DragEvent) => {
       event.preventDefault();
@@ -120,7 +109,6 @@ export function WorkflowCanvas() {
         y: event.clientY - bounds.top,
       };
 
-      // safety check
       if (isNaN(position.x) || isNaN(position.y)) return;
 
       const newNode: WorkflowNode = {
@@ -128,7 +116,7 @@ export function WorkflowCanvas() {
         type: type as WorkflowNode['type'],
         position,
         data: {
-          title: type.toUpperCase(),
+          title: type.charAt(0).toUpperCase() + type.slice(1),
           description: "",
         },
       };
@@ -140,7 +128,7 @@ export function WorkflowCanvas() {
   );
 
   return (
-    <div ref={reactFlowWrapper} className="w-full h-full">
+    <div ref={reactFlowWrapper} className="w-full h-full relative">
       <ReactFlow
         nodes={nodes}
         edges={edges}
@@ -154,46 +142,68 @@ export function WorkflowCanvas() {
         nodeTypes={nodeTypes}
         edgeTypes={edgeTypes}
         fitView
-        className="bg-white"
+        proOptions={{ hideAttribution: true }}
         defaultViewport={{ x: 0, y: 0, zoom: 1 }}
       >
-        {/* Clean light grid */}
-        <Background 
-          gap={20} 
-          size={1} 
-          color="#f3f4f6"
+        {/* Subtle dot grid */}
+        <Background
+          gap={28}
+          size={1.2}
+          color="#d1d5db"
           variant={BackgroundVariant.Dots}
         />
 
-        {/* Clean controls */}
-        <Controls 
-          className="bg-white border border-gray-200 rounded-lg shadow-sm"
-          showZoom={true}
-          showFitView={true}
-          showInteractive={true}
-        />
-
-        {/* Clean minimap */}
+        {/* MiniMap */}
         <MiniMap
-          className="bg-white border border-gray-200 rounded-lg shadow-sm"
+          className="!bg-white !border !border-gray-100 !rounded-xl !shadow-sm"
           nodeColor={(node) => {
             switch (node.type) {
-              case "start":
-                return "#dbeafe"; // light blue
-              case "task":
-                return "#ffe4e6"; // light pink
-              case "approval":
-                return "#ffedd5"; // light peach
-              case "automated":
-                return "#ede9fe"; // light lavender
-              case "end":
-                return "#dcfce7"; // light mint
-              default:
-                return "#f3f4f6"; // light gray
+              case "start": return "#dbeafe";
+              case "task": return "#ffe4e6";
+              case "approval": return "#ffedd5";
+              case "automated": return "#ede9fe";
+              case "end": return "#dcfce7";
+              default: return "#f3f4f6";
             }
           }}
-          maskColor="rgba(255, 255, 255, 0.95)"
+          maskColor="rgba(255,255,255,0.7)"
         />
+
+        {/* Custom zoom controls — top right */}
+        <div className="absolute top-4 right-4 z-10 flex flex-col gap-1.5">
+          <div className="flex flex-col bg-white border border-gray-100 rounded-xl shadow-sm overflow-hidden">
+            <button
+              onClick={() => zoomIn()}
+              className="p-2 hover:bg-gray-50 transition-colors border-b border-gray-100"
+              title="Zoom In"
+            >
+              <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+              </svg>
+            </button>
+            <button
+              onClick={() => zoomOut()}
+              className="p-2 hover:bg-gray-50 transition-colors"
+              title="Zoom Out"
+            >
+              <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
+              </svg>
+            </button>
+          </div>
+
+          {/* Fit view button */}
+          <button
+            onClick={() => fitView({ padding: 0.2 })}
+            className="bg-white border border-gray-100 rounded-xl shadow-sm p-2 hover:bg-gray-50 transition-colors"
+            title="Fit View"
+          >
+            <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
+            </svg>
+          </button>
+        </div>
+
       </ReactFlow>
     </div>
   );
